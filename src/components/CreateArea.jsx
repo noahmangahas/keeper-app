@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import CloseIcon from "@material-ui/icons/Close";
+import { ClickAwayListener } from "@material-ui/core";
 
 function CreateArea(props) {
   const [input, setInput] = useState({
@@ -16,9 +18,26 @@ function CreateArea(props) {
     });
   }
 
+  var [isFocused, setIsFocused] = useState(false);
+  
+  function setOnFocus() {
+    setIsFocused(true);
+  }
+
+  function contentOnBlur() {
+    (input.title !== "" || input.content !== "") && props.handleClick(input);
+    setInput({
+      title: "",
+      content: ""
+    });
+    setIsFocused(false);
+  }
+
   return (
+    <ClickAwayListener onClickAway={contentOnBlur}>
     <div>
-      <form>
+      <form className="create-note">
+        {isFocused && (
         <input 
           onChange={handleChange} 
           name="title" 
@@ -26,22 +45,27 @@ function CreateArea(props) {
           style={{fontWeight: "bold"}}
           value={input.title} 
         />
+        )}
         <textarea 
           onChange={handleChange}
           name="content"
           placeholder="Take a note..."
-          rows="3"
+          rows={ isFocused ? "3" : "1" }
           value={input.content}
+          onFocus={() => {
+            setOnFocus();
+          }}
         />
-        <button type="button" onClick={() => {
-          (input.title !== "" || input.content !== "") && props.handleClick(input);
-          setInput({
-            title: "",
-            content: ""
-          });
-        }} ><i className="fas fa-plus"></i></button>
+        {isFocused && (
+          <button type="button" onClick={() => {
+            setIsFocused(false);
+          }}>
+            <CloseIcon />
+          </button>
+        )}
       </form>
     </div>
+    </ClickAwayListener>
   );
 }
 
